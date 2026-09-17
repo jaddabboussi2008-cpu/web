@@ -28,6 +28,7 @@
 
   --edge: clamp(20px, 5vw, 72px);
   --lead: 28px;
+  --nav-h: 60px;         /* remeasured from the real nav by site.js */
 
   /* dark grounds */
   --dark-1: #0c1b23;   /* featured band, stats, render backdrop outer */
@@ -251,7 +252,7 @@ img { display: block; }
       brand and order are secondary controls on the line below. */
 
 .filters {
-  position: sticky; top: 62px; z-index: 12;
+  position: sticky; top: var(--nav-h); z-index: 12;
   display: flex; flex-direction: column; gap: 0;
   padding: 0; margin: 0 0 calc(1.25 * var(--lead));
   background: var(--color-bg);
@@ -285,7 +286,8 @@ img { display: block; }
 
 .pill {
   appearance: none; cursor: pointer; font-family: var(--font-body); font-size: 14px;
-  padding: 9px 16px; margin-right: 8px; border-radius: 0; outline-offset: 2px; white-space: nowrap;
+  padding: 10px 16px; margin-right: 8px; min-height: 44px; border-radius: 0;
+  outline-offset: 2px; white-space: nowrap;
   border: 1px solid var(--color-divider); background: transparent; color: var(--color-text);
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
@@ -303,7 +305,7 @@ img { display: block; }
 }
 .sort-btn {
   appearance: none; cursor: pointer; font-family: var(--font-body); font-size: 14px;
-  padding: 9px 16px; border-radius: 0; border: 1px solid var(--color-divider);
+  padding: 10px 16px; min-height: 44px; border-radius: 0; border: 1px solid var(--color-divider);
   background: transparent; color: var(--color-text); outline-offset: 2px; white-space: nowrap;
   transition: background 160ms ease, border-color 160ms ease;
 }
@@ -393,7 +395,6 @@ img { display: block; }
 .mcard-specs .v {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
   font-size: 16px; line-height: 20px; font-feature-settings: 'tnum' 1;
-  overflow-wrap: break-word;
 }
 .mcard-specs .k {
   font-size: 12px; line-height: 16px;
@@ -707,7 +708,20 @@ body.is-locked { overflow: hidden; }
   .flagship-body { border-left: 0; border-top: 2px solid var(--color-divider); }
   .tab { padding-right: 18px; margin-right: 18px; }
   .service-row { grid-template-columns: minmax(0, 1fr); }
-  .filters { top: 0; }
+
+  /* The sticky bar must not eat the viewport it is filtering. Each control row
+     keeps to one line and scrolls sideways, the way .rail already does, instead
+     of wrapping into a block that pins half the screen. */
+  .filter-row:not(.split) { flex-wrap: nowrap; overflow-x: auto; }
+  .filter-row.split > .filter-row { min-width: 0; }
+}
+
+/* Below this the brand pills and the count/order pair stop fitting on one line
+   together; give each the full width rather than squeezing the pills into a
+   scroller too narrow to show there is more than one brand. */
+@media (max-width: 720px) {
+  .filter-row.split > .filter-row { flex: 1 1 100%; }
+  .filter-meta { flex: 1 1 100%; justify-content: space-between; }
 }
 
 /* ── Odds and ends ─────────────────────────────────────────────────────── */

@@ -432,7 +432,7 @@
     push("Battery", kwh(s["Battery"] || s["Motor"] || s["Engine"]), 12);
     push("Engine", s["Engine"] && String(s["Engine"]).split("+")[0].replace(/\s*gasoline\b/i, ""), 15);
     push("Drive", drive(s["Drive"] || s["Drivetrain"]), 17);
-    push("Gearbox", s["Transmission"] && String(s["Transmission"]).replace(/(\d+-speed)\s+automatic/i, "$1 auto"), 16);
+    push("Gearbox", s["Transmission"] && String(s["Transmission"]).replace(/(\d+-speed)\s+automatic/i, "$1 auto").replace(/^automatic$/i, "Auto"), 16);
     push("Warranty", car.warranty, 12);
     return out;
   }
@@ -791,6 +791,15 @@
   var nav = $("[data-nav]");
   var onScroll = function () { nav.classList.toggle("is-scrolled", window.scrollY > 40); };
   window.addEventListener("scroll", onScroll, { passive: true });
+
+  // The lineup's filter bar sticks under the nav, and the nav grows as its links
+  // wrap on narrow screens. Publish the measured height so CSS offsets against
+  // the real bar rather than a number that was true at one width.
+  var setNavHeight = function () {
+    document.documentElement.style.setProperty("--nav-h", Math.round(nav.getBoundingClientRect().height) + "px");
+  };
+  window.addEventListener("resize", setNavHeight);
+  setNavHeight();
 
   /* ── Test-drive form ────────────────────────────────────────────────── */
 
