@@ -150,9 +150,95 @@ img { display: block; }
 .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--lead); }
 .hero-actions .btn { white-space: nowrap; }
 
+/* ── Hero (coast — the shipped hero) ─────────────────────────────────────
+
+   The hero was the one band on this page that opted out of what the rest of
+   it does: type on flat grey, half the width empty, no photograph, while
+   every other band is a dark ground with photography carrying it.
+
+   It now does both, in the page's own order. Everywhere else — the featured
+   tiles, the lineup cards, the Avatr pair — a photograph sits in its own
+   frame beside ruled type, never behind it. So the display type takes the
+   full measure on the dark ground and the photograph takes the full width
+   beneath it, the two divided by the system's 2px rule. Nothing overlays
+   the subject, so nothing needs a scrim to stay legible, and the headline
+   gets the whole 1240px measure it needs to run at hero scale.
+
+   The band is cut by the fold on purpose: the photograph continues past it. */
+
+.hero-coast { background: var(--dark-1); color: var(--ink-dark); }
+.hero-coast-copy {
+  max-width: 1240px; margin: 0 auto;
+  padding: calc(2.5 * var(--lead)) var(--edge) calc(2 * var(--lead));
+}
+.hero-coast .hero-rule { background: var(--ink-dark); width: 96px; margin-bottom: 20px; }
+.hero-coast h1 {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: clamp(38px, 5.6vw, 76px); line-height: 1.04; letter-spacing: -0.03em;
+  margin: 0 0 0 -0.058em; color: #ffffff;
+}
+.hero-coast h1 span { display: block; }
+.hero-coast .hero-lede {
+  font-size: 16.5px; line-height: var(--lead); max-width: 58ch;
+  margin: calc(1.1 * var(--lead)) 0 0;
+  color: rgba(244, 246, 249, 0.82);
+}
+.hero-coast .hero-actions { margin-top: calc(1.1 * var(--lead)); }
+.hero-coast .btn-ghost { color: #ffffff; border-color: rgba(255, 255, 255, 0.55); }
+.hero-coast .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+.hero-credential {
+  font-size: 13px; line-height: 20px; letter-spacing: 0.02em;
+  margin: calc(1.25 * var(--lead)) 0 0; padding-top: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.26);
+  color: rgba(244, 246, 249, 0.76);
+  max-width: 58ch;
+}
+
+/* The photograph's own band, on the rule. */
+.hero-coast-shot {
+  position: relative; width: 100%; overflow: hidden;
+  height: clamp(300px, 46vh, 520px);
+  border-top: 2px solid var(--color-divider);
+  background: var(--dark-3);
+}
+.hero-coast-shot img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 64%;
+}
+
+/* The one authored arrival on the page. The rule draws, the headline is
+   revealed line by line — the page's existing two moves — and then the
+   photograph's band opens from the rule downward while the frame settles out
+   of its own motion, so the dust is still travelling as the page lands.
+   The image is fully opaque from the first frame; only the band that holds
+   it is clipped, so a failed script can never leave the hero blank. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-coast .hero-rule { animation: dm-wipe 720ms var(--ease-enter) both; }
+  .hero-coast h1 span:nth-child(1) { animation: dm-line 900ms 180ms var(--ease-enter) both; }
+  .hero-coast h1 span:nth-child(2) { animation: dm-line 900ms 300ms var(--ease-enter) both; }
+  .hero-coast h1 span:nth-child(3) { animation: dm-line 900ms 420ms var(--ease-enter) both; }
+  .hero-coast .hero-lede { animation: dm-rise 680ms 600ms var(--ease-enter) both; }
+  .hero-coast .hero-actions { animation: dm-rise 680ms 700ms var(--ease-enter) both; }
+  .hero-coast .hero-credential { animation: dm-rise 680ms 800ms var(--ease-enter) both; }
+  .hero-coast-shot { animation: dm-band 760ms 520ms var(--ease-enter) both; }
+  .hero-coast-shot img { animation: dm-settle 2400ms 520ms var(--ease-image) both; }
+}
+@keyframes dm-band { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes dm-settle { from { transform: scale(1.09); } to { transform: none; } }
+
+@media (max-width: 720px) {
+  .hero-coast-shot { height: clamp(220px, 34vh, 340px); }
+}
+
 /* Hero (bleed — alternate, switch with data-hero="bleed" on <body>) */
 .hero-bleed { position: relative; width: 100%; height: min(78vh, 720px); overflow: hidden; }
-.hero-bleed .shot { position: absolute; inset: -2%; }
+/* .shot is also the configurator's 96px gallery thumbnail, further down this
+   file; without these resets that rule wins and the hero photograph collapses
+   to a thumbnail. Scoped here so the gallery is untouched. */
+.hero-bleed .shot {
+  position: absolute; inset: -2%;
+  width: auto; aspect-ratio: auto; opacity: 1;
+  border: 0; background: none; cursor: default;
+}
 .hero-bleed .shot img { width: 100%; height: 100%; object-fit: cover; }
 .hero-bleed .scrim {
   position: absolute; inset: 0; pointer-events: none;
@@ -697,7 +783,7 @@ body.is-locked { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-ruled *, .hero-bleed * { animation: none !important; }
+  .hero-ruled *, .hero-bleed *, .hero-coast * { animation: none !important; }
   .tile .stage img, .mcard .stage img, .swatch, .mcard, .nav, .pill, .tab, .sort-btn, .trim, .rail-item { transition: none; }
 
   /* Nothing is held back under reduced motion, so the map is simply drawn and

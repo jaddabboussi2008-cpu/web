@@ -7,9 +7,10 @@
 
   /* ── Configuration ──────────────────────────────────────────────────── */
 
-  // "ruled" is the shipped hero. "bleed" and "poster" are the alternates
-  // documented in the handoff — switch by setting data-hero on <body>.
-  var HERO_VARIANT = document.body.dataset.hero || "ruled";
+  // "coast" is the shipped hero. "ruled", "bleed" and "poster" are the
+  // alternates documented in the handoff, all still switchable by setting
+  // data-hero on <body>; none of them changed when "coast" was added.
+  var HERO_VARIANT = document.body.dataset.hero || "coast";
 
   // Test-drive requests go to WhatsApp. Put the number here in full
   // international form, digits only — e.g. "599717XXXX" for Bonaire. A location
@@ -251,6 +252,30 @@
   function renderHero() {
     var mount = $("[data-hero-mount]");
     var eyebrow = "Authorised Changan dealer — Bonaire · Curaçao · Aruba";
+
+    // The shipped hero. Every other band on this page is a dark ground with
+    // photography doing the work; the hero was the one section opting out, so
+    // it now leads with the range in the place it is sold. The credential that
+    // used to sit as a label above the headline is unchanged in wording and
+    // moved below it, where it reads as the signature on a claim instead of a
+    // caption introducing one.
+    if (HERO_VARIANT === "coast") {
+      mount.innerHTML =
+        '<section class="hero-coast">'
+        + '<div class="hero-coast-copy">'
+        + '<div class="hero-rule" aria-hidden="true"></div>'
+        + "<h1><span>Engineered in Chongqing.</span><span>Delivered, serviced and</span><span>warrantied here.</span></h1>"
+        + '<p class="hero-lede">Dabboussi Motors imports, sells and maintains the full Changan group range — Changan, Deepal and Avatr, from the Lumin city EV to the Avatr 11 — with factory-trained technicians, genuine parts held on the shelf, and 5 to 8 year warranties honoured at our own workshops.</p>'
+        + '<div class="hero-actions">'
+        + '<a href="#lineup" class="btn btn-primary">See the lineup</a>'
+        + '<a href="#configure" class="btn btn-ghost">Configure a vehicle</a>'
+        + "</div>"
+        + '<p class="hero-credential">' + esc(eyebrow) + "</p>"
+        + "</div>"
+        + '<div class="hero-coast-shot"><img src="photos/hero-hunter-bonaire.jpg" alt="A Changan Hunter throwing dust on a track below the Bonaire wind turbines" fetchpriority="high" decoding="async"></div>'
+        + "</section>";
+      return;
+    }
 
     if (HERO_VARIANT === "bleed") {
       mount.innerHTML =
