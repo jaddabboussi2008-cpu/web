@@ -55,30 +55,36 @@
     svg.push('<rect width="' + W + '" height="' + H + '" fill="var(--map-sea)"></rect>');
 
     coast.forEach(function (d) {
-      svg.push('<path d="' + d + '" fill="var(--map-land)" stroke="var(--map-line)" stroke-width="1.5"></path>');
+      svg.push('<path class="map-land-path" d="' + d + '" fill="var(--map-land)" stroke="var(--map-line)" stroke-width="1.5"></path>');
     });
 
     svg.push('<text x="40" y="52" class="map-sea-label">Caribbean Sea</text>');
     svg.push('<text x="' + (W - 40) + '" y="' + (H - 34) + '" text-anchor="end" class="map-sea-label">Venezuela</text>');
 
-    SITES.forEach(function (s) {
+    // Each site is drawn as one beat of the reveal: the leader line draws up
+    // out of the sea, the pin lands on it, then the island is named. The
+    // per-site delay is carried on the element so CSS owns the timing.
+    SITES.forEach(function (s, n) {
       var p = proj([s.lon, s.lat]);
       var x = Math.round(p[0]), y = Math.round(p[1]);
       var top = y - s.lift;
-      svg.push('<line x1="' + x + '" y1="' + (y - 12) + '" x2="' + x + '" y2="' + top + '" stroke="var(--map-pin)" stroke-width="1.5"></line>');
-      svg.push('<circle cx="' + x + '" cy="' + y + '" r="8" fill="var(--map-pin)"></circle>');
-      svg.push('<circle cx="' + x + '" cy="' + y + '" r="19" fill="none" stroke="var(--map-pin)" stroke-width="1.5" opacity="0.5"></circle>');
+      var d = 'style="--beat: ' + (n * 110) + 'ms"';
+      svg.push('<line class="map-leader" ' + d + ' pathLength="1" x1="' + x + '" y1="' + (y - 12) + '" x2="' + x + '" y2="' + top + '" stroke="var(--map-pin)" stroke-width="1.5"></line>');
+      svg.push('<circle class="map-pin-dot" ' + d + ' cx="' + x + '" cy="' + y + '" r="8" fill="var(--map-pin)"></circle>');
+      svg.push('<circle class="map-pin-ring" ' + d + ' cx="' + x + '" cy="' + y + '" r="19" fill="none" stroke="var(--map-pin)" stroke-width="1.5" opacity="0.5"></circle>');
       var tx = s.anchor === "start" ? x + 10 : s.anchor === "end" ? x - 10 : x;
       var ta = s.anchor === "start" ? "start" : s.anchor === "end" ? "end" : "middle";
-      svg.push('<text x="' + tx + '" y="' + (top - 26) + '" text-anchor="' + ta + '" class="map-island">' + s.island + '</text>');
-      svg.push('<text x="' + tx + '" y="' + (top - 4) + '" text-anchor="' + ta + '" class="map-city">' + s.city + '</text>');
+      svg.push('<text ' + d + ' x="' + tx + '" y="' + (top - 26) + '" text-anchor="' + ta + '" class="map-island">' + s.island + '</text>');
+      svg.push('<text ' + d + ' x="' + tx + '" y="' + (top - 4) + '" text-anchor="' + ta + '" class="map-city">' + s.city + '</text>');
     });
 
     var bx = 40, by = H - 40;
+    svg.push('<g class="map-bar">');
     svg.push('<line x1="' + bx + '" y1="' + by + '" x2="' + (bx + barPx) + '" y2="' + by + '" stroke="var(--map-line)" stroke-width="2"></line>');
     svg.push('<line x1="' + bx + '" y1="' + (by - 6) + '" x2="' + bx + '" y2="' + (by + 6) + '" stroke="var(--map-line)" stroke-width="2"></line>');
     svg.push('<line x1="' + (bx + barPx) + '" y1="' + (by - 6) + '" x2="' + (bx + barPx) + '" y2="' + (by + 6) + '" stroke="var(--map-line)" stroke-width="2"></line>');
     svg.push('<text x="' + bx + '" y="' + (by - 14) + '" class="map-scale">' + barKm + ' km</text>');
+    svg.push('</g>');
 
     svg.push('</svg>');
 
@@ -86,5 +92,22 @@
     host.classList.remove("placeholder");
     host.removeAttribute("data-label");
     host.classList.add("map-ready");
+
+    // The map answers "where are you", so it draws when the visitor arrives at
+    // the showrooms rather than in an empty viewport they have not reached.
+    // Without IntersectionObserver, or with reduced motion, it is simply there.
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still || typeof IntersectionObserver === "undefined") {
+      host.classList.add("map-drawn");
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        host.classList.add("map-drawn");
+        io.disconnect();
+      });
+    }, { threshold: 0.35 });
+    io.observe(host);
   }).catch(function () { /* panel keeps its placeholder label */ });
 })();

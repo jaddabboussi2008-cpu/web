@@ -699,6 +699,13 @@ body.is-locked { overflow: hidden; }
   html { scroll-behavior: auto; }
   .hero-ruled *, .hero-bleed * { animation: none !important; }
   .tile .stage img, .mcard .stage img, .swatch, .mcard, .nav, .pill, .tab, .sort-btn, .trim, .rail-item { transition: none; }
+
+  /* Nothing is held back under reduced motion, so the map is simply drawn and
+     the configurator simply arrives. Less movement, not a page that never
+     finishes — and never a part left invisible waiting for an animation. */
+  .map-panel.map-drawn *,
+  .overlay.is-entering .overlay-bar,
+  .overlay.is-entering .overlay-body { animation: none !important; }
 }
 
 /* ── Narrow screens ────────────────────────────────────────────────────── */
@@ -894,3 +901,75 @@ body.is-locked { overflow: hidden; }
   .map-panel .map-city { font-size: 26px; }
   .map-panel .map-sea-label, .map-panel .map-scale { font-size: 22px; }
 }
+
+/* ── The map draws itself ────────────────────────────────────────────────
+
+   The one authored moment on the page, and it belongs to this section: the
+   showrooms are three dots in the Caribbean, so the map plants them rather
+   than presenting them finished. Ground first, then each leader line drawn up
+   out of the sea, the pin landing on it, and the island named — the hero's own
+   two moves (a rule that draws, a line that reveals) spoken in the map's
+   grammar. It runs once, on arrival, and never again.
+
+   Until .map-drawn lands the parts are held at their start state; map.js adds
+   that class on intersection, or immediately when motion is reduced or
+   IntersectionObserver is missing, so the map is never stuck invisible. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .map-panel.map-ready .map-land-path,
+  .map-panel.map-ready .map-leader,
+  .map-panel.map-ready .map-pin-dot,
+  .map-panel.map-ready .map-pin-ring,
+  .map-panel.map-ready .map-island,
+  .map-panel.map-ready .map-city,
+  .map-panel.map-ready .map-sea-label,
+  .map-panel.map-ready .map-bar { opacity: 0; }
+}
+
+.map-panel.map-drawn .map-land-path {
+  animation: dm-map-land 640ms var(--ease-enter) both;
+}
+.map-panel.map-drawn .map-sea-label {
+  animation: dm-map-fade 520ms 200ms var(--ease-enter) both;
+}
+.map-panel.map-drawn .map-leader {
+  stroke-dasharray: 1; opacity: 1;
+  animation: dm-map-draw 420ms calc(360ms + var(--beat, 0ms)) var(--ease-enter) both;
+}
+.map-panel.map-drawn .map-pin-dot,
+.map-panel.map-drawn .map-pin-ring {
+  transform-box: fill-box; transform-origin: center;
+  animation: dm-map-pin 380ms calc(290ms + var(--beat, 0ms)) var(--ease-enter) both;
+}
+.map-panel.map-drawn .map-pin-ring {
+  animation-name: dm-map-ring;
+  animation-delay: calc(430ms + var(--beat, 0ms));
+}
+.map-panel.map-drawn .map-island,
+.map-panel.map-drawn .map-city {
+  transform-box: fill-box;
+  animation: dm-map-name 460ms calc(640ms + var(--beat, 0ms)) var(--ease-enter) both;
+}
+.map-panel.map-drawn .map-city { animation-delay: calc(700ms + var(--beat, 0ms)); }
+.map-panel.map-drawn .map-bar {
+  transform-box: fill-box; transform-origin: left center;
+  animation: dm-map-bar 440ms 980ms var(--ease-enter) both;
+}
+
+@keyframes dm-map-land { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes dm-map-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dm-map-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes dm-map-pin  { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+@keyframes dm-map-ring { from { opacity: 0; transform: scale(0.35); } to { opacity: 0.5; transform: none; } }
+@keyframes dm-map-name { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(-30% -30% -30% -30%); } }
+@keyframes dm-map-bar  { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: none; } }
+
+/* ── The configurator arrives ────────────────────────────────────────────
+   Opening it replaces the whole view. One short move says the page was
+   replaced rather than reloaded; re-renders inside it (paint, level) are
+   untouched, so only the arrival is animated. */
+
+.overlay.is-entering .overlay-bar { animation: dm-rise 300ms var(--ease-enter) both; }
+.overlay.is-entering .overlay-body { animation: dm-overlay-in 420ms 60ms var(--ease-enter) both; }
+@keyframes dm-overlay-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+

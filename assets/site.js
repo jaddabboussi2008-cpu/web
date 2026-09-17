@@ -55,7 +55,7 @@
     modelText: ""
   };
 
-  var prev = { model: -1, color: -1, trim: -1 };
+  var prev = { model: -1, color: -1, trim: -1, configOpen: false };
   var lastOpener = null;
 
   function set(patch) {
@@ -437,6 +437,43 @@
     return out;
   }
 
+  // Filtering and reordering rewrite the whole grid, so a card that survives
+  // the change would jump to its new cell. Measure where each one was, let the
+  // rewrite happen, then carry it from its old position to its new one: the
+  // change becomes legible as movement instead of a cut. Cards that leave are
+  // gone with the rewrite — an exit that waits is just latency.
+  function flip(mutate) {
+    var host = $("[data-rows]");
+    if (!host || reduced() || typeof host.animate !== "function") { mutate(); return; }
+
+    var before = {};
+    $$("[data-rows] .mcard").forEach(function (el) {
+      before[el.dataset.pick] = el.getBoundingClientRect();
+    });
+    // Dropping from nineteen cards to two can shorten the page enough that the
+    // browser scrolls; viewport rects would read that as every card moving.
+    var scrolled = window.scrollY;
+
+    mutate();
+
+    var shift = window.scrollY - scrolled;
+    $$("[data-rows] .mcard").forEach(function (el) {
+      var was = before[el.dataset.pick];
+      var now = el.getBoundingClientRect();
+      if (!was) {
+        el.animate([{ opacity: 0 }, { opacity: 1 }],
+          { duration: 260, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+        return;
+      }
+      var dx = was.left - now.left, dy = was.top - now.top - shift;
+      if (!dx && !dy) return;
+      el.animate(
+        [{ transform: "translate(" + dx + "px, " + dy + "px)" }, { transform: "none" }],
+        { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }
+      );
+    });
+  }
+
   function renderRows() {
     var host = $("[data-rows]");
     var rows = filteredRows();
@@ -555,7 +592,15 @@
 
   function renderOverlay() {
     var host = $("[data-overlay]");
+    var arriving = state.configOpen && !prev.configOpen;
+    prev.configOpen = state.configOpen;
     host.hidden = !state.configOpen;
+    host.classList.toggle("is-entering", arriving && !reduced());
+    if (arriving && !reduced()) {
+      // Drop the class once the arrival has played, so the open view carries no
+      // state that a later re-render could replay.
+      window.setTimeout(function () { host.classList.remove("is-entering"); }, 560);
+    }
     document.body.classList.toggle("is-locked", state.configOpen);
     if (!state.configOpen) { host.innerHTML = ""; return; }
 
@@ -750,10 +795,10 @@
     if (t.hasAttribute("data-pick"))          return openConfigWith(Number(t.dataset.pick), t);
     if (t.hasAttribute("data-open-config"))   { lastOpener = t; return set({ configOpen: true }); }
     if (t.hasAttribute("data-close-config"))  return closeConfig();
-    if (t.hasAttribute("data-body"))          return set({ lineupBody: t.dataset.body });
-    if (t.hasAttribute("data-brand"))         return set({ lineupBrand: t.dataset.brand });
-    if (t.hasAttribute("data-sort"))          return set({ lineupSort: state.lineupSort === "floor" ? "asc" : state.lineupSort === "asc" ? "desc" : "floor" });
-    if (t.hasAttribute("data-clear"))         return set({ lineupBody: "All", lineupBrand: "All" });
+    if (t.hasAttribute("data-body"))          return flip(function () { set({ lineupBody: t.dataset.body }); });
+    if (t.hasAttribute("data-brand"))         return flip(function () { set({ lineupBrand: t.dataset.brand }); });
+    if (t.hasAttribute("data-sort"))          return flip(function () { set({ lineupSort: state.lineupSort === "floor" ? "asc" : state.lineupSort === "asc" ? "desc" : "floor" }); });
+    if (t.hasAttribute("data-clear"))         return flip(function () { set({ lineupBody: "All", lineupBrand: "All" }); });
     if (t.hasAttribute("data-color"))         return set({ color: Number(t.dataset.color), photo: -1 });
     if (t.hasAttribute("data-trim"))          return set({ trim: Number(t.dataset.trim) });
     if (t.hasAttribute("data-rail"))          return set({ model: Number(t.dataset.rail), trim: 0, color: 0, photo: -1 });
