@@ -314,21 +314,169 @@
       + "</div></section>";
   }
 
+  /* ── Featured three — the depth stage ──────────────────────────────────
+     One car at a time, filling the band. Advancing pushes the current car
+     back into depth while the next arrives from further back and lands, and
+     the marque's name is revealed on the page's own clip-path move as its car
+     settles. The three cars are one per brand, so the name is the thing that
+     actually changes between slides, not a decoration.
+
+     The stage is built once and then driven by class alone; it is deliberately
+     outside the main render() loop, because rewriting innerHTML mid-transition
+     would kill it. */
+
+  var zAt = 0;            // which car is forward
+  var zTimer = null;
+  var zHeld = false;      // held by hover, focus, a hidden tab, or being offscreen
+  var zStopped = false;   // the visitor pressed pause; their choice outranks the rest
+  var zSwiped = false;    // the click that closes a swipe is not a tap on the car
+  var Z_DWELL = 5000;
+  var Z_TRAVEL = 900;
+
+  function zIcon(d) {
+    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"'
+      + ' stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  }
+
   function renderFeatured() {
     var host = $("[data-featured]");
-    host.innerHTML = D.featured.map(function (name) {
+    var cars = D.featured.map(function (name) {
       var i = CARS.findIndex(function (c) { return c.name === name; });
-      var x = CARS[i];
-      var hero = D.heroShot[name];
+      return { c: CARS[i], i: i };
+    });
+
+    var slides = cars.map(function (o, n) {
+      var x = o.c;
+      var hero = D.heroShot[x.name];
       var shot = hero ? { src: hero, credit: null } : shotFor(x, 0);
-      return '<button type="button" class="tile" data-pick="' + i + '">'
-        + stage(shot, { alt: x.name, eager: true, fit: hero ? (D.heroFit[name] || null) : null })
+      return '<button type="button" class="tile zslide' + (n === 0 ? " is-current" : " is-back") + '"'
+        + ' data-pick="' + o.i + '" data-zslide="' + n + '"'
+        + ' role="group" aria-roledescription="slide"'
+        + ' aria-label="' + esc(x.name) + ", " + (n + 1) + " of " + cars.length + '">'
+        + '<span class="zbrand">' + esc(x.brand) + "</span>"
+        // All three feature frames are 1600x900 with the car centred, so one
+        // cover crop holds them identically and the band has no letterbox.
+        + stage(shot, { alt: x.name, eager: n === 0, cover: true })
         + '<span class="tile-body">'
-        + '<span class="tile-kind">' + esc(x.brand + " " + x.body) + "</span>"
+        + '<span class="tile-kind">' + esc(x.body) + "</span>"
         + '<span class="tile-name">' + esc(x.name) + "</span>"
         + '<span class="tile-price">From ' + esc(x.trims[0].price) + "</span>"
         + "</span></button>";
     }).join("");
+
+    var dots = cars.map(function (o, n) {
+      return '<button type="button" class="zdot" data-zto="' + n + '"'
+        + ' aria-label="Show ' + esc(o.c.name) + '" aria-pressed="' + (n === 0) + '"></button>';
+    }).join("");
+
+    host.innerHTML =
+      '<div class="zstage" data-zstage role="group" aria-roledescription="carousel" aria-label="Featured models">'
+      + '<div class="zframe">' + slides + "</div>"
+      + '<div class="zcontrols">'
+      + '<button type="button" class="zbtn" data-zstep="-1" aria-label="Previous model">' + zIcon('<path d="M15 5l-7 7 7 7"/>') + "</button>"
+      + '<div class="zdots">' + dots + "</div>"
+      + '<button type="button" class="zbtn" data-zstep="1" aria-label="Next model">' + zIcon('<path d="M9 5l7 7-7 7"/>') + "</button>"
+      + '<button type="button" class="zbtn zplay" data-zplay aria-label="Pause the slideshow" aria-pressed="false">'
+      + zIcon('<path d="M9 5v14M15 5v14"/>') + "</button>"
+      + "</div></div>";
+
+    // Few cores usually means the blur will cost more than it is worth.
+    if ((navigator.hardwareConcurrency || 8) < 4) $("[data-zstage]").classList.add("no-blur");
+
+    zBind();
+    zSync();
+    zResume();
+  }
+
+  // Only the forward car is reachable; the parked ones are out of the tab order
+  // and out of the accessibility tree, so nobody lands on a car they cannot see.
+  function zSync() {
+    $$("[data-zstage] .zslide").forEach(function (el, n) {
+      var live = n === zAt || reduced();
+      el.setAttribute("aria-hidden", live ? "false" : "true");
+      el.tabIndex = live ? 0 : -1;
+    });
+    $$("[data-zstage] .zdot").forEach(function (el, n) {
+      el.setAttribute("aria-pressed", String(n === zAt));
+    });
+  }
+
+  function zGo(n) {
+    var slides = $$("[data-zstage] .zslide");
+    if (!slides.length) return;
+    n = (n + slides.length) % slides.length;
+    if (n === zAt) return;
+
+    if (reduced()) { zAt = n; zSync(); return; }
+
+    var out = slides[zAt], inn = slides[n];
+    // Park the arriving car deep before it travels, and commit that position
+    // in its own frame, or the browser interpolates from wherever it was.
+    inn.classList.remove("is-current", "is-out");
+    inn.classList.add("is-back", "is-instant");
+    void inn.offsetWidth;
+    inn.classList.remove("is-instant");
+
+    out.classList.remove("is-current");
+    out.classList.add("is-out");
+    inn.classList.remove("is-back");
+    inn.classList.add("is-current");
+
+    window.setTimeout(function () {
+      out.classList.remove("is-out");
+      if (!out.classList.contains("is-current")) out.classList.add("is-back");
+    }, Z_TRAVEL);
+
+    zAt = n;
+    zSync();
+  }
+
+  function zResume() {
+    window.clearInterval(zTimer); zTimer = null;
+    if (reduced() || zStopped || zHeld) return;
+    zTimer = window.setInterval(function () { zGo(zAt + 1); }, Z_DWELL);
+  }
+  function zHold(on) { zHeld = on; zResume(); }
+
+  function zBind() {
+    var stageEl = $("[data-zstage]");
+    if (!stageEl || stageEl.dataset.bound) return;
+    stageEl.dataset.bound = "1";
+
+    stageEl.addEventListener("mouseenter", function () { zHold(true); });
+    stageEl.addEventListener("mouseleave", function () { zHold(false); });
+    stageEl.addEventListener("focusin", function () { zHold(true); });
+    stageEl.addEventListener("focusout", function () { zHold(false); });
+    document.addEventListener("visibilitychange", function () { zHold(document.hidden); });
+
+    // A slideshow nobody can see has no business running.
+    if (typeof IntersectionObserver !== "undefined") {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          stageEl.classList.toggle("is-live", e.isIntersecting);
+          zHold(!e.isIntersecting);
+        });
+      }, { threshold: 0.25 }).observe(stageEl);
+    }
+
+    stageEl.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); zGo(zAt + 1); zResume(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); zGo(zAt - 1); zResume(); }
+    });
+
+    var startX = null;
+    stageEl.addEventListener("pointerdown", function (e) { startX = e.clientX; });
+    stageEl.addEventListener("pointerup", function (e) {
+      if (startX === null) return;
+      var dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) < 44) return;
+      zSwiped = true;
+      window.setTimeout(function () { zSwiped = false; }, 0);
+      zGo(zAt + (dx < 0 ? 1 : -1));
+      zResume();
+    });
+    stageEl.addEventListener("pointercancel", function () { startX = null; });
   }
 
   // The Avatr section: the marque's own cards, rendered once (no filtering —
@@ -814,8 +962,20 @@
   }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-pick], [data-open-config], [data-close-config], [data-body], [data-brand], [data-sort], [data-clear], [data-color], [data-photo], [data-trim], [data-rail], [data-config-brand], [data-quote], [data-copy-link], [data-form-reset]");
+    var t = e.target.closest("[data-pick], [data-open-config], [data-close-config], [data-body], [data-brand], [data-sort], [data-clear], [data-color], [data-photo], [data-trim], [data-rail], [data-config-brand], [data-quote], [data-copy-link], [data-form-reset], [data-zstep], [data-zto], [data-zplay]");
     if (!t) return;
+
+    if (t.hasAttribute("data-zstep")) { zGo(zAt + Number(t.dataset.zstep)); zResume(); return; }
+    if (t.hasAttribute("data-zto"))   { zGo(Number(t.dataset.zto)); zResume(); return; }
+    if (t.hasAttribute("data-zplay")) {
+      zStopped = !zStopped;
+      t.setAttribute("aria-pressed", String(zStopped));
+      t.setAttribute("aria-label", zStopped ? "Play the slideshow" : "Pause the slideshow");
+      t.innerHTML = zIcon(zStopped ? '<path d="M7 4l12 8-12 8z"/>' : '<path d="M9 5v14M15 5v14"/>');
+      zResume();
+      return;
+    }
+    if (zSwiped && t.hasAttribute("data-pick")) return;
 
     if (t.hasAttribute("data-pick"))          return openConfigWith(Number(t.dataset.pick), t);
     if (t.hasAttribute("data-open-config"))   { lastOpener = t; return set({ configOpen: true }); }

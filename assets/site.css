@@ -280,6 +280,118 @@ img { display: block; }
   font-size: 26px; line-height: 1.1; letter-spacing: -0.02em;
 }
 .tile-price { font-size: 14px; color: rgba(244, 246, 249, 0.8); }
+/* ── Featured three — the depth stage ────────────────────────────────────
+
+   A camera push, not a filmstrip: the car that is leaving travels back into
+   depth and goes soft while the one arriving comes from further back still
+   and lands face-on, and the marque's name is revealed on dm-line — the same
+   move the headline uses — as its car settles. One car forward at a time, so
+   the band gives the whole width to the thing being shown.
+
+   The blur is the one costly property here. It is bounded to the outgoing and
+   parked frames only, which are already fading out, and dropped entirely on
+   narrow screens and on machines that report few cores. The forward car never
+   carries a filter, so its preserve-3d context is never flattened. */
+
+.zstage { position: relative; }
+.zframe {
+  position: relative;
+  perspective: 1400px;
+  perspective-origin: 50% 46%;
+}
+.zslide {
+  grid-area: 1 / 1;
+  transform-style: preserve-3d;
+  transition:
+    transform 900ms var(--ease-image),
+    opacity 520ms ease,
+    filter 620ms ease;
+}
+/* Only while the band is actually on screen, so three promoted layers are not
+   held for a section nobody has scrolled to. */
+.zstage.is-live .zslide { will-change: transform, opacity; }
+.zframe { display: grid; }
+.zslide.is-instant { transition: none; }
+
+.zslide.is-current {
+  transform: translateZ(0) scale(1);
+  opacity: 1; filter: none;
+  pointer-events: auto; z-index: 2;
+}
+.zslide.is-back {
+  transform: translateZ(-900px) scale(1);
+  opacity: 0; pointer-events: none; z-index: 0;
+}
+.zslide.is-out {
+  transform: translateZ(-460px) scale(1);
+  opacity: 0; pointer-events: none; z-index: 1;
+}
+@media (min-width: 720px) {
+  .zstage:not(.no-blur) .zslide.is-back { filter: blur(12px); }
+  .zstage:not(.no-blur) .zslide.is-out { filter: blur(8px); }
+}
+
+.zslide .stage { aspect-ratio: 21 / 9; }
+
+/* The marque, set on its own plane behind the car. */
+.zbrand {
+  display: block; align-self: start;
+  transform: translateZ(-170px); transform-origin: left center;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: clamp(30px, 4.2vw, 62px); line-height: 1.05; letter-spacing: -0.035em;
+  text-transform: uppercase; color: #ffffff;
+  pointer-events: none;
+}
+.zslide.is-current .zbrand { animation: dm-line 760ms 200ms var(--ease-enter) both; }
+
+.zcontrols {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: calc(0.75 * var(--lead));
+}
+.zdots { display: flex; align-items: center; gap: 8px; margin-inline: 6px; }
+.zplay { margin-left: auto; }
+.zdot {
+  appearance: none; cursor: pointer; padding: 0;
+  width: 44px; height: 44px; border: 0; background: transparent;
+  outline-offset: 2px; position: relative;
+}
+.zdot::after {
+  content: ""; position: absolute; inset: 50% auto auto 50%;
+  width: 34px; height: 2px; transform: translate(-50%, -50%);
+  background: rgba(244, 246, 249, 0.3);
+  transition: background 200ms ease;
+}
+.zdot:hover::after { background: rgba(244, 246, 249, 0.6); }
+.zdot[aria-pressed="true"]::after { background: var(--ink-dark); }
+.zbtn {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: transparent; color: var(--ink-dark);
+  outline-offset: 2px;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+.zbtn:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.55); }
+
+/* Reduced motion gets the band as a row: all three cars, nothing travelling,
+   nothing to pause. The controls would drive an animation that never runs, so
+   they are not shown. */
+@media (prefers-reduced-motion: reduce) {
+  .zframe {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 20px; perspective: none;
+  }
+  .zslide, .zslide.is-current, .zslide.is-back, .zslide.is-out {
+    grid-area: auto; transform: none; opacity: 1; filter: none;
+    pointer-events: auto; transition: none; will-change: auto;
+  }
+  .zslide .stage { aspect-ratio: 4 / 3; }
+  .zbrand { position: static; transform: none; font-size: 20px; margin-bottom: 4px; }
+  .zslide.is-current .zbrand { animation: none; }
+  .zcontrols { display: none; }
+}
+
 .footnote {
   font-size: 11px; line-height: 18px; margin: calc(1.5 * var(--lead)) 0 0;
   max-width: 96ch; color: rgba(244, 246, 249, 0.55);
