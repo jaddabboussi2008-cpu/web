@@ -6,9 +6,10 @@
    are smaller than that dataset resolves, so each one is marked at its real
    coordinates rather than outlined — a locator map, not a coastline map.
 
-   The map draws into the panel only once the geometry has loaded. If the
-   network is unavailable the panel keeps its "map to come" label, so the
-   page never shows a broken frame.
+   The map draws into the panel only once the geometry has loaded. The
+   geometry is vendored under assets/vendor/, so no network call is made; if
+   the file is missing the panel keeps its "map to come" label and the page
+   never shows a broken frame.
    ───────────────────────────────────────────────────────────────────────── */
 (function () {
   "use strict";
@@ -26,7 +27,7 @@
   ];
   var NEAR = ["Venezuela", "Colombia", "Trinidad and Tobago"];
 
-  var URL = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json";
+  var URL = "assets/vendor/countries-110m-2.0.2.json";
 
   fetch(URL).then(function (r) { return r.json(); }).then(function (topo) {
     var land = topojson.feature(topo, topo.objects.countries);

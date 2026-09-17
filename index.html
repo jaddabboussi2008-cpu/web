@@ -632,9 +632,12 @@
 <script src="assets/site.js"></script>
 
 <!-- Locator map: real Natural Earth geometry, projected with d3-geo.
-     Pinned, hash-verified tags — do not change versions, URLs or hashes. -->
-<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous" defer></script>
-<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous" defer></script>
+     Pinned, hash-verified tags — do not change versions or hashes. The two
+     libraries are vendored under assets/vendor/ at the exact versions and with
+     the exact bytes the CDN tags asserted, so the map draws with no third-party
+     request and works offline and behind a strict content-security-policy. -->
+<script src="assets/vendor/d3-7.9.0.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" defer></script>
+<script src="assets/vendor/topojson-client-3.1.0.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" defer></script>
 <script src="assets/map.js" defer></script>
 </body>
 </html>
