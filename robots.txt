@@ -1,0 +1,6 @@
+# Dabboussi Motors
+User-agent: *
+Allow: /
+
+# Replace the domain below before launch.
+Sitemap: https://www.dabboussimotors.com/sitemap.xml
