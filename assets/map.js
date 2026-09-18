@@ -21,9 +21,9 @@
 
   // Showroom cities, in the order the locations grid lists them.
   var SITES = [
+    { island: "Aruba",   city: "Oranjestad", lon: -70.027, lat: 12.521, anchor: "end", lift: 96 },
     { island: "Bonaire", city: "Kralendijk", lon: -68.283, lat: 12.151, anchor: "start", lift: 132 },
-    { island: "Curaçao", city: "Willemstad", lon: -68.933, lat: 12.108, anchor: "middle", lift: 74 },
-    { island: "Aruba",   city: "Oranjestad", lon: -70.027, lat: 12.521, anchor: "end", lift: 96 }
+    { island: "Curaçao", city: "Willemstad", lon: -68.933, lat: 12.108, anchor: "middle", lift: 74 }
   ];
   var NEAR = ["Venezuela", "Colombia", "Trinidad and Tobago"];
 
@@ -50,7 +50,7 @@
     var barKm = 50;
     var barPx = barKm / kmPerPx;
 
-    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Locator map: Dabboussi Motors showrooms on Bonaire, Curaçao and Aruba, off the coast of Venezuela." preserveAspectRatio="xMidYMid slice">'];
+    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Locator map: Dabboussi Motors showrooms on Aruba, Bonaire and Curaçao, off the coast of Venezuela." preserveAspectRatio="xMidYMid slice">'];
 
     svg.push('<rect width="' + W + '" height="' + H + '" fill="var(--map-sea)"></rect>');
 

@@ -1,6 +1,6 @@
 # Dabboussi Motors — site
 
-Dealer site for **Changan, Deepal and Avatr** in **Bonaire, Curaçao and Aruba**.
+Dealer site for **Changan, Deepal and Avatr** in **Aruba, Bonaire and Curaçao**.
 Static: no framework, no build step, no server. `index.html` opens and runs.
 
 Read `README.md` first — it documents deploying, what data is real vs. placeholder,

@@ -1255,6 +1255,14 @@ window.DM = {
   ],
   "locations": [
     {
+      "type": "Showroom & service",
+      "city": "Aruba",
+      "address": "Sasakiweg, Oranjestad, Aruba",
+      "phone": "+297 000 0000",
+      "whatsapp": "",
+      "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
+    },
+    {
       "type": "Flagship showroom",
       "city": "Bonaire",
       "address": "Kaya Industria, Kralendijk, Bonaire",
@@ -1267,14 +1275,6 @@ window.DM = {
       "city": "Curaçao",
       "address": "Schottegatweg Oost, Willemstad, Curaçao",
       "phone": "+5999 000 0000",
-      "whatsapp": "",
-      "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
-    },
-    {
-      "type": "Showroom & service",
-      "city": "Aruba",
-      "address": "Sasakiweg, Oranjestad, Aruba",
-      "phone": "+297 000 0000",
       "whatsapp": "",
       "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
     }

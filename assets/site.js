@@ -251,7 +251,7 @@
 
   function renderHero() {
     var mount = $("[data-hero-mount]");
-    var eyebrow = "Authorised Changan dealer — Bonaire · Curaçao · Aruba";
+    var eyebrow = "Authorised Changan dealer — Aruba · Bonaire · Curaçao";
 
     // The shipped hero. Every other band on this page is a dark ground with
     // photography doing the work; the hero was the one section opting out, so
