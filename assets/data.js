@@ -1293,6 +1293,7 @@ window.DM = {
     "AVATR 11": "scale-down"
   },
   "heroShot": {
+    "UNI-K": "photos/uni-k-feature.jpg",
     "AVATR 11": "photos/avatr11-feature.jpg",
     "DEEPAL S05": "photos/s05-feature-blue.jpg"
   },
@@ -1418,6 +1419,10 @@ window.DM = {
     "CS75 PLUS|Dark Grey": "photos/cs75-plus-dark-grey.jpg",
     "CS75 PLUS|Noble Black": "photos/cs75-plus-black.jpg",
     "UNI-K|Black": "photos/uni-k-black.jpg",
+    "UNI-K|Silver": "photos/uni-k-silver.jpg",
+    "UNI-K|White": "photos/uni-k-white.jpg",
+    "UNI-K|Blue": "photos/uni-k-blue.jpg",
+    "UNI-K|Dark grey": "photos/uni-k-dark-grey.jpg",
     "F70 HUNTER|Silver": "photos/f70-hunter-grey.jpg",
     "F70 HUNTER|Blue": "photos/f70-hunter-blue.jpg",
     "F70 HUNTER|Dark grey": "photos/f70-hunter-grey.jpg",
