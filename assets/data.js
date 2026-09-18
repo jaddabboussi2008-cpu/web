@@ -1322,6 +1322,12 @@ window.DM = {
       { "src": "photos/avatr07-3.jpg", "label": "Wide" },
       { "src": "photos/avatr07-4.jpg", "label": "Profile" },
       { "src": "photos/avatr07-5.jpg", "label": "From above" }
+    ],
+    "HUNTER PLUS": [
+      { "src": "photos/hunter-plus-beach.jpg", "label": "On the sand" },
+      { "src": "photos/hunter-plus-convoy.jpg", "label": "Three on the coast road" },
+      { "src": "photos/hunter-plus-towing.jpg", "label": "Towing" },
+      { "src": "photos/hunter-plus-camper.jpg", "label": "With the camper module" }
     ]
   },
   "floorOrder": [
