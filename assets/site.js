@@ -1008,8 +1008,14 @@
 
     if (t.hasAttribute("data-quote")) {
       var c = current();
+      errand = "quote";
       set({ modelText: c.car.name + " — " + c.trim.name + ", " + c.color.name, configOpen: false, submitted: false });
       document.getElementById("contact").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" });
+      updateRouting();
+      // The quote cannot be priced without knowing which showroom answers it.
+      if (island && !island.value) {
+        window.setTimeout(function () { island.focus(); }, reduced() ? 0 : 600);
+      }
       return;
     }
   });
@@ -1035,18 +1041,53 @@
 
   var form = $("[data-form]");
   var formError = $("[data-form-error]");
+  var island = $("[data-showroom]");
+  var routedTo = $("[data-routed-to]");
+  var callLink = $("[data-call-link]");
+
+  // Which errand this enquiry is: the configurator's quote button says so, and
+  // everything else is a test drive. Reset once a request has gone.
+  var errand = "test drive";
+
+  function locationFor(city) {
+    return (D.locations || []).filter(function (l) { return l.city === city; })[0] || null;
+  }
+
+  // The showroom the visitor picked, or the flagship while they have not picked
+  // one — that is the number the page showed before there was a chooser.
+  function houseLocation() {
+    var locs = D.locations || [];
+    return locs.filter(function (l) { return /flagship/i.test(l.type || ""); })[0] || locs[0] || null;
+  }
+
+  // The island list belongs to the data, not to the markup, so a showroom added
+  // in data.js appears here too. The static options in index.html are the
+  // no-JS fallback and are replaced wholesale.
+  function renderShowroomOptions() {
+    if (!island) return;
+    var chosen = island.value;
+    island.innerHTML =
+      '<option value="">Choose your island</option>'
+      + (D.locations || []).map(function (l) {
+          return '<option value="' + esc(l.city) + '">' + esc(l.city) + "</option>";
+        }).join("");
+    if (chosen && locationFor(chosen)) island.value = chosen;
+  }
 
   // The number that answers this enquiry: the chosen showroom's own, or the
   // house number. Digits only — wa.me rejects spaces and plus signs.
   function whatsappFor(showroom) {
-    var loc = (D.locations || []).filter(function (l) { return l.city === showroom; })[0];
+    var loc = locationFor(showroom);
     var n = (loc && loc.whatsapp) || WHATSAPP_NUMBER || "";
     return String(n).replace(/[^0-9]/g, "");
   }
 
   // What the customer sends. Written as they would write it, not as a form dump.
   function whatsappMessage(d) {
-    var lines = ["Hello Dabboussi Motors — I would like to book a test drive."];
+    var opener = d.errand === "quote"
+      ? "Hello Dabboussi Motors — I would like a quote."
+      : "Hello Dabboussi Motors — I would like to book a test drive.";
+    var lines = [opener];
     if (d.model) lines.push("Model: " + d.model);
     if (d.showroom) lines.push("Showroom: " + d.showroom);
     lines.push("Name: " + d.name);
@@ -1054,21 +1095,42 @@
     return lines.join("\n");
   }
 
-  // The button says what it does, and only promises WhatsApp when it can deliver.
-  function labelSubmit() {
+  // Say where this is going and offer that showroom's own number, so choosing an
+  // island visibly changes who answers rather than only changing a hidden field.
+  function updateRouting() {
+    var chosen = island ? island.value.trim() : "";
+    var loc = locationFor(chosen);
+
+    if (routedTo) {
+      routedTo.hidden = !loc;
+      if (loc) routedTo.textContent = "Goes to the " + loc.city + " showroom — " + loc.address + ".";
+    }
+
+    var phoneLoc = loc || houseLocation();
+    if (callLink && phoneLoc && phoneLoc.phone) {
+      callLink.textContent = phoneLoc.phone;
+      callLink.href = "tel:" + String(phoneLoc.phone).replace(/[^0-9+]/g, "");
+    }
+
     var btn = $("[data-form] [type=submit]");
-    if (!btn) return;
-    var showroom = (new FormData(form).get("showroom") || "").trim();
-    btn.textContent = whatsappFor(showroom) ? "Send on WhatsApp" : "Request a test drive";
+    if (btn) {
+      btn.textContent = whatsappFor(chosen)
+        ? "Send on WhatsApp"
+        : (errand === "quote" ? "Request a quote" : "Request a test drive");
+    }
   }
-  labelSubmit();
-  form.addEventListener("change", labelSubmit);
+
+  renderShowroomOptions();
+  updateRouting();
+  form.addEventListener("change", updateRouting);
+  form.addEventListener("input", updateRouting);
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var data = new FormData(form);
     var name = (data.get("name") || "").trim();
     var phone = (data.get("phone") || "").trim();
+    var showroom = (data.get("showroom") || "").trim();
 
     if (!name || !phone) {
       formError.textContent = "Please give us a name and a phone number so we can confirm the slot.";
@@ -1076,21 +1138,35 @@
       (name ? form.phone : form.name).focus();
       return;
     }
+    // Without an island there is no showroom to send this to, so it is asked
+    // for rather than guessed — a guess would route someone to the wrong one.
+    if (!showroom || !locationFor(showroom)) {
+      formError.textContent = "Please choose your island so this reaches the right showroom.";
+      formError.hidden = false;
+      if (island) island.focus();
+      return;
+    }
     formError.hidden = true;
 
     var done = function () {
       $("[data-thanks-line]").textContent = "Thank you, " + name.split(" ")[0] + ".";
+      var where = $("[data-thanks-where]");
+      if (where) where.textContent = "Your request is with the " + showroom + " showroom.";
       set({ submitted: true });
       form.reset();
+      errand = "test drive";
+      renderShowroomOptions();
+      updateRouting();
     };
 
-    var wa = whatsappFor((data.get("showroom") || "").trim());
+    var wa = whatsappFor(showroom);
     if (wa) {
       window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(whatsappMessage({
         name: name,
         phone: phone,
         model: (data.get("model") || "").trim(),
-        showroom: (data.get("showroom") || "").trim()
+        showroom: showroom,
+        errand: errand
       })), "_blank", "noopener");
       done();
       return;

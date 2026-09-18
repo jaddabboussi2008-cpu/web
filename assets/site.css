@@ -764,6 +764,19 @@ img { display: block; }
 .contact .form-actions { grid-column: 1 / -1; display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
 .contact .btn-ghost { color: var(--color-bg); border-color: var(--color-bg); white-space: nowrap; }
 .contact .call { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.contact .call-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Which showroom this enquiry will reach, named under the island chooser so
+   the routing is visible rather than implied. */
+.form-hint {
+  grid-column: 1 / -1; margin: -4px 0 0;
+  font-size: 13.5px; line-height: 20px;
+  color: color-mix(in srgb, var(--color-bg) 78%, transparent);
+}
+/* Native appearance is kept on purpose: the platform's own disclosure arrow is
+   the thing that says "this opens", and stripping it left a control that read
+   as a text field. Only the room it needs is added. */
+.contact select.input { cursor: pointer; padding-right: 6px; }
 .contact .thanks { max-width: 60ch; }
 .contact .thanks p:first-child { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 26px; line-height: 1.2; margin: 0 0 12px; }
 .contact .thanks p + p { font-size: 15.5px; line-height: var(--lead); margin: 0 0 var(--lead); }

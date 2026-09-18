@@ -598,23 +598,27 @@
       <label>Model of interest
         <input class="input" name="model">
       </label>
-      <label>Preferred showroom
-        <input class="input" name="showroom" value="Bonaire" list="showroom-list">
-        <datalist id="showroom-list">
-          <option value="Aruba"></option>
-          <option value="Bonaire"></option>
-          <option value="Curaçao"></option>
-        </datalist>
+      <label>Your island
+        <!-- Options are rebuilt from assets/data.js at boot so the form follows
+             the showrooms; these three are the no-JS fallback. -->
+        <select class="input" name="showroom" data-showroom required>
+          <option value="">Choose your island</option>
+          <option value="Aruba">Aruba</option>
+          <option value="Bonaire">Bonaire</option>
+          <option value="Curaçao">Curaçao</option>
+        </select>
       </label>
+      <p class="form-hint" data-routed-to hidden></p>
       <p class="form-error" data-form-error hidden></p>
       <div class="form-actions">
         <button type="submit" class="btn btn-ghost">Request a test drive</button>
-        <span class="call">Or call <a href="tel:+5997170000" style="color: inherit; text-decoration: underline;">+599 717 0000</a></span>
+        <span class="call">Or call <a class="call-link" data-call-link href="tel:+5997170000">+599 717 0000</a></span>
       </div>
     </form>
 
     <div class="thanks" data-thanks hidden>
       <p data-thanks-line>Thank you.</p>
+      <p data-thanks-where></p>
       <p>A sales advisor will confirm your slot by phone within one working day. If you need it sooner, call the showroom directly.</p>
       <button type="button" class="btn btn-ghost" data-form-reset>Send another request</button>
     </div>
