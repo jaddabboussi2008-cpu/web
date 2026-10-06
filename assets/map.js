@@ -19,9 +19,11 @@
 
   var W = 1260, H = 540;
 
-  // Showroom cities, in the order the locations grid lists them. Aruba is served
-  // from Curaçao and has no showroom to mark, so it carries no pin.
+  // Every island served, in the order the locations grid lists them. Aruba is
+  // covered but has no showroom of its own, so it is marked with an open pin and
+  // named for the showroom that answers it rather than for a street it has not.
   var SITES = [
+    { island: "Aruba",   city: "Served from Curaçao", lon: -70.027, lat: 12.521, anchor: "end", lift: 96, served: true },
     { island: "Bonaire", city: "Kralendijk", lon: -68.283, lat: 12.151, anchor: "start", lift: 132 },
     { island: "Curaçao", city: "Willemstad", lon: -68.933, lat: 12.108, anchor: "middle", lift: 74 }
   ];
@@ -50,7 +52,7 @@
     var barKm = 50;
     var barPx = barKm / kmPerPx;
 
-    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Locator map: Dabboussi Motors showrooms on Bonaire and Curaçao, off the coast of Venezuela." preserveAspectRatio="xMidYMid slice">'];
+    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Locator map: Dabboussi Motors covers Aruba, Bonaire and Curaçao, off the coast of Venezuela, with showrooms on Bonaire and Curaçao." preserveAspectRatio="xMidYMid slice">'];
 
     svg.push('<rect width="' + W + '" height="' + H + '" fill="var(--map-sea)"></rect>');
 
@@ -70,7 +72,9 @@
       var top = y - s.lift;
       var d = 'style="--beat: ' + (n * 110) + 'ms"';
       svg.push('<line class="map-leader" ' + d + ' pathLength="1" x1="' + x + '" y1="' + (y - 12) + '" x2="' + x + '" y2="' + top + '" stroke="var(--map-pin)" stroke-width="1.5"></line>');
-      svg.push('<circle class="map-pin-dot" ' + d + ' cx="' + x + '" cy="' + y + '" r="8" fill="var(--map-pin)"></circle>');
+      svg.push(s.served
+        ? '<circle class="map-pin-dot is-served" ' + d + ' cx="' + x + '" cy="' + y + '" r="7" fill="var(--map-land)" stroke="var(--map-pin)" stroke-width="2.5"></circle>'
+        : '<circle class="map-pin-dot" ' + d + ' cx="' + x + '" cy="' + y + '" r="8" fill="var(--map-pin)"></circle>');
       svg.push('<circle class="map-pin-ring" ' + d + ' cx="' + x + '" cy="' + y + '" r="19" fill="none" stroke="var(--map-pin)" stroke-width="1.5" opacity="0.5"></circle>');
       var tx = s.anchor === "start" ? x + 10 : s.anchor === "end" ? x - 10 : x;
       var ta = s.anchor === "start" ? "start" : s.anchor === "end" ? "end" : "middle";
