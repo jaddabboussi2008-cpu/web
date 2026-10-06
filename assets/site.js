@@ -1049,7 +1049,18 @@
   // everything else is a test drive. Reset once a request has gone.
   var errand = "test drive";
 
-  function locationFor(city) {
+  // Every island in the chooser, with the showroom that answers it. Falls back
+  // to the showrooms themselves if a data file predates the islands list.
+  function islandList() {
+    if (D.islands && D.islands.length) return D.islands;
+    return (D.locations || []).map(function (l) { return { name: l.city, servedBy: l.city }; });
+  }
+
+  // The showroom an island's enquiry reaches. Aruba has no showroom of its own,
+  // so it resolves to the one that answers for it.
+  function locationFor(islandName) {
+    var entry = islandList().filter(function (i) { return i.name === islandName; })[0];
+    var city = entry ? entry.servedBy : islandName;
     return (D.locations || []).filter(function (l) { return l.city === city; })[0] || null;
   }
 
@@ -1068,8 +1079,8 @@
     var chosen = island.value;
     island.innerHTML =
       '<option value="">Choose your island</option>'
-      + (D.locations || []).map(function (l) {
-          return '<option value="' + esc(l.city) + '">' + esc(l.city) + "</option>";
+      + islandList().map(function (i) {
+          return '<option value="' + esc(i.name) + '">' + esc(i.name) + "</option>";
         }).join("");
     if (chosen && locationFor(chosen)) island.value = chosen;
   }
@@ -1103,7 +1114,12 @@
 
     if (routedTo) {
       routedTo.hidden = !loc;
-      if (loc) routedTo.textContent = "Goes to the " + loc.city + " showroom — " + loc.address + ".";
+      if (loc) {
+        routedTo.textContent = (chosen === loc.city)
+          ? "Goes to the " + loc.city + " showroom — " + loc.address + "."
+          : "There is no showroom on " + chosen + "; this goes to " + loc.city
+            + ", which covers it — " + loc.address + ".";
+      }
     }
 
     var phoneLoc = loc || houseLocation();
@@ -1151,7 +1167,12 @@
     var done = function () {
       $("[data-thanks-line]").textContent = "Thank you, " + name.split(" ")[0] + ".";
       var where = $("[data-thanks-where]");
-      if (where) where.textContent = "Your request is with the " + showroom + " showroom.";
+      var got = locationFor(showroom);
+      if (where && got) {
+        where.textContent = (showroom === got.city)
+          ? "Your request is with the " + got.city + " showroom."
+          : "Your request is with the " + got.city + " showroom, which covers " + showroom + ".";
+      }
       set({ submitted: true });
       form.reset();
       errand = "test drive";

@@ -1253,31 +1253,32 @@ window.DM = {
       ]
     }
   ],
+  // "locations" are the showrooms that exist and can be visited: they fill the
+  // showroom cards and the map pins. "islands" are who a visitor can be, and
+  // which showroom answers them — Aruba is served, but from Curaçao, so it
+  // belongs in the chooser without a card or a pin of its own.
   "locations": [
-    {
-      "type": "Showroom & service",
-      "city": "Aruba",
-      "address": "Sasakiweg, Oranjestad, Aruba",
-      "phone": "+297 000 0000",
-      "whatsapp": "",
-      "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
-    },
     {
       "type": "Flagship showroom",
       "city": "Bonaire",
-      "address": "Kaya Industria, Kralendijk, Bonaire",
-      "phone": "+599 717 0000",
+      "address": "Dabboussi Center, Plaza Medardo Thielman #2, Kralendijk",
+      "phone": "+599 717 4545",
       "whatsapp": "",
       "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
     },
     {
       "type": "Showroom & service",
       "city": "Curaçao",
-      "address": "Schottegatweg Oost, Willemstad, Curaçao",
-      "phone": "+5999 000 0000",
+      "address": "Schottegatweg Oost 229, Saliña, Willemstad",
+      "phone": "+5999 788 0185",
       "whatsapp": "",
       "hours": "Mon–Fri 08:00–12:30 · 14:00–18:00"
     }
+  ],
+  "islands": [
+    { "name": "Aruba",   "servedBy": "Curaçao" },
+    { "name": "Bonaire", "servedBy": "Bonaire" },
+    { "name": "Curaçao", "servedBy": "Curaçao" }
   ],
   "flagship": {
     "Changan": "UNI-K",
