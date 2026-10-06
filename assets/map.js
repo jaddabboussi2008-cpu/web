@@ -20,10 +20,10 @@
   var W = 1260, H = 540;
 
   // Every island served, in the order the locations grid lists them. All three
-  // carry the same pin; Aruba is named for the showroom that answers it rather
-  // than for a street it has not.
+  // carry the same pin. A site with no city line is drawn as the island name
+  // alone — Aruba has no showroom address to name.
   var SITES = [
-    { island: "Aruba",   city: "Served from Curaçao", lon: -70.027, lat: 12.521, anchor: "end", lift: 96 },
+    { island: "Aruba",   city: "", lon: -70.027, lat: 12.521, anchor: "end", lift: 96 },
     { island: "Bonaire", city: "Kralendijk", lon: -68.283, lat: 12.151, anchor: "start", lift: 132 },
     { island: "Curaçao", city: "Willemstad", lon: -68.933, lat: 12.108, anchor: "middle", lift: 74 }
   ];
@@ -77,7 +77,9 @@
       var tx = s.anchor === "start" ? x + 10 : s.anchor === "end" ? x - 10 : x;
       var ta = s.anchor === "start" ? "start" : s.anchor === "end" ? "end" : "middle";
       svg.push('<text ' + d + ' x="' + tx + '" y="' + (top - 26) + '" text-anchor="' + ta + '" class="map-island">' + s.island + '</text>');
-      svg.push('<text ' + d + ' x="' + tx + '" y="' + (top - 4) + '" text-anchor="' + ta + '" class="map-city">' + s.city + '</text>');
+      if (s.city) {
+        svg.push('<text ' + d + ' x="' + tx + '" y="' + (top - 4) + '" text-anchor="' + ta + '" class="map-city">' + s.city + '</text>');
+      }
     });
 
     var bx = 40, by = H - 40;
