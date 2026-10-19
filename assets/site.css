@@ -261,6 +261,43 @@ img { display: block; }
 /* ── Featured three ────────────────────────────────────────────────────── */
 
 .featured { background: var(--dark-1); color: var(--ink-dark); padding-block: calc(2 * var(--lead)) calc(2.5 * var(--lead)); }
+
+/* ── The top of the page ─────────────────────────────────────────────────
+
+   The rotating cars open the site, and the pitch rides in the same band
+   rather than in a hero above it, so the first thing a visitor meets is a
+   car in motion and not a screen of type. The headline is deliberately
+   shorter than the one it replaces: it shares the first viewport with the
+   stage, so it has to leave room for the car. */
+
+.featured-intro { margin: 0 0 22px; }
+.featured-intro .hero-rule { background: var(--ink-dark); width: 96px; margin-bottom: 16px; }
+.featured-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: clamp(30px, 3.8vw, 52px); line-height: 1.06; letter-spacing: -0.03em;
+  margin: 0 0 0 -0.055em; color: #ffffff;
+}
+.featured-title span { display: block; }
+.featured-lede {
+  font-size: 16px; line-height: 24px; max-width: 64ch;
+  margin: 16px 0 0;
+  color: rgba(244, 246, 249, 0.82);
+}
+.featured .hero-actions { margin-top: 18px; }
+.featured .btn-ghost { color: #ffffff; border-color: rgba(255, 255, 255, 0.55); }
+.featured .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* The arrival the hero used to own, now on the thing that opens the page. */
+@media (prefers-reduced-motion: no-preference) {
+  .featured-intro .hero-rule { animation: dm-wipe 700ms var(--ease-enter) both; }
+  .featured-title span:nth-child(1) { animation: dm-line 860ms 160ms var(--ease-enter) both; }
+  .featured-title span:nth-child(2) { animation: dm-line 860ms 280ms var(--ease-enter) both; }
+  .featured-lede { animation: dm-rise 640ms 520ms var(--ease-enter) both; }
+  .featured .hero-actions { animation: dm-rise 640ms 620ms var(--ease-enter) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .featured-intro * { animation: none !important; }
+}
 .featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; }
 .tile {
   appearance: none; cursor: pointer; padding: 0; text-align: left;
@@ -338,8 +375,9 @@ img { display: block; }
   display: block; align-self: start;
   transform: translateZ(-170px); transform-origin: left center;
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: clamp(30px, 4.2vw, 62px); line-height: 1.05; letter-spacing: -0.035em;
-  text-transform: uppercase; color: #ffffff;
+  font-size: 15px; line-height: 1; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(244, 246, 249, 0.72);
+  margin-bottom: 12px;
   pointer-events: none;
 }
 .zslide.is-current .zbrand { animation: dm-line 760ms 200ms var(--ease-enter) both; }

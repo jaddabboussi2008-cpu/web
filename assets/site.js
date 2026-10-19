@@ -7,10 +7,10 @@
 
   /* ── Configuration ──────────────────────────────────────────────────── */
 
-  // "coast" is the shipped hero. "ruled", "bleed" and "poster" are the
-  // alternates documented in the handoff, all still switchable by setting
-  // data-hero on <body>; none of them changed when "coast" was added.
-  var HERO_VARIANT = document.body.dataset.hero || "coast";
+  // The featured band is the top of the page now and carries the headline, so
+  // no hero renders unless one is asked for. "coast", "ruled", "bleed" and
+  // "poster" all still work by setting data-hero on <body>.
+  var HERO_VARIANT = document.body.dataset.hero || "none";
 
   // Test-drive requests go to WhatsApp. Put the number here in full
   // international form, digits only — e.g. "599717XXXX" for Bonaire. A location
@@ -251,6 +251,17 @@
 
   function renderHero() {
     var mount = $("[data-hero-mount]");
+    if (HERO_VARIANT === "none") { mount.innerHTML = ""; return; }
+
+    // A hero variant brings its own h1, and the page may only have one. The
+    // featured band's heading steps down to h2 for as long as a hero is shown.
+    var title = $(".featured-title");
+    if (title && title.tagName === "H1") {
+      var h2 = document.createElement("h2");
+      h2.className = title.className;
+      h2.innerHTML = title.innerHTML;
+      title.parentNode.replaceChild(h2, title);
+    }
     var eyebrow = "Authorised Changan dealer — Aruba · Bonaire · Curaçao";
 
     // The shipped hero. Every other band on this page is a dark ground with
