@@ -4,14 +4,19 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --color-bg: #e7eaf1;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-text: #161b23;
-  --color-divider: #cdd4e0;
+  --color-text: #181818;
+  --color-divider: #e4e4e4;
+  /* The reference sets its muted grey at #7E7E7E, which lands at 3.9:1 on
+     its own footer ground and fails AA. Same role, darkened until it
+     passes — the look survives the four points of lightness. */
+  --color-muted: #6b6b6b;
   --color-accent: #3d6fd0;
-  --color-accent-100: #eef3fc;
-  --color-accent-200: #d8e3f8;
-  --color-accent-300: #b6caf2;
+  /* The tint ramp drives hover fills. Neutral, so the one accent stays rare. */
+  --color-accent-100: #f5f5f5;
+  --color-accent-200: #ebebeb;
+  --color-accent-300: #d8d8d8;
   --color-accent-400: #7a9ee0;
   --color-accent-500: #3d6fd0;
   --color-accent-600: #3260b8;
@@ -22,38 +27,81 @@
   --color-accent-2-500: #3d6fd0;
   --color-accent-2-700: #274c94;
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* One softened corner in an otherwise hard-edged layout. */
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
 
-  --edge: clamp(20px, 5vw, 72px);
+  --edge: clamp(20px, 5vw, 80px);
+  --edge-nav: clamp(16px, 2.8vw, 40px);  /* links sit outside the content measure */
   --lead: 28px;
-  --nav-h: 60px;         /* remeasured from the real nav by site.js */
+  --nav-h: 64px;         /* remeasured from the real nav by site.js */
 
-  /* dark grounds */
-  --dark-1: #0c1b23;   /* featured band, stats, render backdrop outer */
-  --dark-2: #0a1720;   /* lineup ground, sticky filter fill */
-  --dark-3: #16232d;   /* render backdrop inner */
-  --ink-dark: #f4f6f9; /* ink on dark */
+  /* Type weights. Hierarchy is carried by size and whitespace, not by weight:
+     nothing on the page is bold, and the heavy end stops at 500. */
+  --font-heading-weight: 300;   /* ds.css ships 800; nothing here is bold */
+  --w-display: 200;
+  --w-title: 300;
+  --w-label: 400;
+  --w-strong: 500;
 
-  --ease-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-image: cubic-bezier(0.16, 0.84, 0.24, 1);
+  /* dark grounds — one true black chapter, not a family of navies */
+  --dark-1: #000000;   /* featured band, stats, render backdrop outer */
+  --dark-2: #000000;   /* lineup ground, sticky filter fill */
+  --dark-3: #0a0a0a;   /* render backdrop inner */
+  --ink-dark: #ffffff; /* ink on dark */
+  --ink-muted: #999999;/* sub-labels on dark */
+  --foot-bg: #fbfbfb;  /* the footer is quieter than the page */
+
+  /* Fast out, long settle. One curve for colour, border, opacity, transform. */
+  --ease-house: cubic-bezier(0.42, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.42, 0, 0, 1);
+  --ease-image: cubic-bezier(0.42, 0, 0, 1);
 }
 
 /* ── System overrides ──────────────────────────────────────────────────── */
 
+/* Buttons are a 1px hairline on a transparent ground; the solid one is ink,
+   not accent. No glow, no shadow — the accent never becomes a fill. */
+.btn {
+  border-radius: var(--radius-md);
+  font-weight: var(--w-label);
+  letter-spacing: normal;
+  min-height: 40px; padding-inline: 22px;
+  border: 1px solid var(--color-text);
+  background: transparent; color: var(--color-text);
+  transition: background-color 300ms var(--ease-house),
+              color 300ms var(--ease-house),
+              border-color 300ms var(--ease-house);
+}
 .btn-primary,
-.nav a.btn-primary { color: var(--color-bg); box-shadow: 0 6px 18px rgba(61, 111, 208, 0.22); }
-.btn, .input, .tag, .seg, .seg-opt, select { border-radius: 999px; }
+.nav a.btn-primary {
+  background: var(--color-text); color: #ffffff;
+  border-color: var(--color-text); box-shadow: none;
+}
+.btn-primary:hover, .nav a.btn-primary:hover { background: #000000; border-color: #000000; }
+.btn-ghost { color: var(--color-text); border-color: var(--color-divider); padding-inline: 22px; }
+.btn-ghost:hover { border-color: var(--color-text); background: transparent; }
+.input, .tag, .seg, .seg-opt, select { border-radius: var(--radius-md); }
 .card {
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--color-divider);
-  box-shadow: 0 1px 2px rgba(22, 27, 35, 0.05), 0 12px 32px rgba(22, 27, 35, 0.06);
+  box-shadow: none;
   overflow: hidden;
 }
 .table th, .table td { border-color: var(--color-divider); }
 .hr { height: 1px; background: var(--color-divider); border: 0; max-width: 1240px; margin: 0 auto; }
-.nav { border-bottom: 1px solid var(--color-divider); }
+/* Headings carry no negative tracking and no weight — size does the work. */
+h1, h2, h3, h4, h5 {
+  font-weight: var(--w-title);
+  letter-spacing: normal;
+}
+/* These negative insets optically aligned a heavy face. At 200-300 they
+   pull the type off the measure, so they go. */
+.featured-title, .stat-figure, .hero-ruled h1, .hero-coast h1, .hero-bleed h1 {
+  margin-left: 0;
+  letter-spacing: normal;
+}
 
 html { scroll-behavior: smooth; }
 body {
@@ -62,7 +110,32 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
+  font-size: 16px; line-height: 24px; font-weight: var(--w-title);
   min-height: 100vh;
+}
+a { transition: color 300ms var(--ease-house); }
+
+/* ── The type scale ──────────────────────────────────────────────────────
+   Two sizes do nearly all the work. A chapter opener is set large on a 1.5
+   line — the leading, not the weight, is what makes it feel architectural —
+   and a section head sits a step down and locks up at 1.15. Tracking is
+   reserved for the wordmark; nothing else on the page is tracked, and
+   nothing is uppercased that was not typed that way. */
+
+.chapter-title {
+  font-family: var(--font-heading); font-weight: var(--w-display);
+  font-size: clamp(30px, 3.9vw, 56px); line-height: 1.5;
+  letter-spacing: normal; margin: 0; text-align: center;
+  color: var(--color-text); text-wrap: balance;
+}
+.chapter-sub {
+  font-size: 20px; line-height: 24px; font-weight: var(--w-display);
+  text-align: center; margin: 10px 0 0; color: var(--color-text);
+}
+.section-title {
+  font-family: var(--font-heading); font-weight: var(--w-display);
+  font-size: clamp(26px, 3.1vw, 42px); line-height: 1.18;
+  letter-spacing: normal; margin: 0; text-wrap: balance;
 }
 a { color: var(--color-accent-700); text-decoration: none; }
 a:hover { color: var(--color-accent); }
@@ -107,23 +180,58 @@ img { display: block; }
 }
 .credit:hover { color: rgba(244, 246, 249, 0.8); }
 
-/* ── Nav ───────────────────────────────────────────────────────────────── */
+/* ── Nav ─────────────────────────────────────────────────────────────────
+   The bar never changes colour. It is an 85%-black scrim from the first
+   pixel to the last, over pale sections and black alike, so the page never
+   re-sets as you scroll through it. The only scroll response is the blur
+   coming up behind it. Links sit at a 40px gutter — half the body's — so
+   they read as chrome rather than as content. */
 
 .nav {
-  position: sticky; top: 0; z-index: 20;
-  background: var(--color-bg);
-  transition: box-shadow 260ms ease;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  min-height: var(--nav-h);
+  padding-inline: var(--edge-nav);
+  background: rgba(0, 0, 0, 0.85);
+  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 0;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: backdrop-filter 300ms var(--ease-house);
 }
 .nav.is-scrolled {
-  box-shadow: 0 1px 0 var(--color-divider), 0 18px 40px rgba(22, 27, 35, 0.10);
+  box-shadow: none;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
-.nav-brand { letter-spacing: -0.01em; }
+.nav-brand {
+  letter-spacing: 0.18em; font-weight: var(--w-label);
+  font-size: 13px; color: #ffffff;
+}
 .nav a, .nav button.linklike { white-space: nowrap; }
-.nav button.linklike {
-  appearance: none; border: 0; background: transparent; cursor: pointer;
-  color: inherit; font-size: 14px; padding: 0;
+.nav a:not(.btn), .nav button.linklike {
+  position: relative; font-size: 13px; line-height: 22px;
+  font-weight: var(--w-label); color: rgba(255, 255, 255, 0.7);
+  transition: color 300ms var(--ease-house);
 }
-.nav button.linklike:hover { color: var(--color-accent); }
+.nav button.linklike {
+  appearance: none; border: 0; background: transparent; cursor: pointer; padding: 0;
+}
+.nav a:not(.btn):hover, .nav button.linklike:hover { color: #ffffff; }
+/* A 1px rule under the item you are on — the accent's only job up here. */
+.nav a:not(.btn)::after, .nav button.linklike::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 1px;
+  background: var(--color-accent);
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 300ms var(--ease-house);
+}
+.nav a:not(.btn):hover::after,
+.nav button.linklike:hover::after,
+.nav a.is-here::after { transform: scaleX(1); }
+.nav a.btn-primary {
+  background: #ffffff; color: #000000; border-color: #ffffff;
+  min-height: 36px; padding-inline: 18px;
+}
+.nav a.btn-primary:hover { background: rgba(255, 255, 255, 0.86); border-color: transparent; }
 
 /* ── Hero (ruled — the shipped default) ────────────────────────────────── */
 
@@ -260,7 +368,10 @@ img { display: block; }
 
 /* ── Featured three ────────────────────────────────────────────────────── */
 
-.featured { background: var(--dark-1); color: var(--ink-dark); padding-block: calc(2 * var(--lead)) calc(2.5 * var(--lead)); }
+.featured {
+  background: var(--dark-1); color: var(--ink-dark);
+  padding-block: calc(var(--nav-h) + 1.6 * var(--lead)) calc(2.5 * var(--lead));
+}
 
 /* ── The top of the page ─────────────────────────────────────────────────
 
@@ -271,17 +382,17 @@ img { display: block; }
    stage, so it has to leave room for the car. */
 
 .featured-intro { margin: 0 0 22px; }
-.featured-intro .hero-rule { background: var(--ink-dark); width: 96px; margin-bottom: 16px; }
+.featured-intro .hero-rule { background: rgba(255, 255, 255, 0.45); width: 46px; height: 1px; margin-bottom: 24px; }
 .featured-title {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: clamp(30px, 3.8vw, 52px); line-height: 1.06; letter-spacing: -0.03em;
-  margin: 0 0 0 -0.055em; color: #ffffff;
+  font-family: var(--font-heading); font-weight: var(--w-display);
+  font-size: clamp(28px, 3.4vw, 48px); line-height: 1.38; letter-spacing: normal;
+  margin: 0; color: #ffffff; max-width: none;
 }
 .featured-title span { display: block; }
 .featured-lede {
-  font-size: 16px; line-height: 24px; max-width: 64ch;
-  margin: 16px 0 0;
-  color: rgba(244, 246, 249, 0.82);
+  font-size: 16px; line-height: 28px; font-weight: var(--w-title); max-width: 58ch;
+  margin: 18px 0 0;
+  color: var(--ink-muted);
 }
 .featured .hero-actions { margin-top: 18px; }
 .featured .btn-ghost { color: #ffffff; border-color: rgba(255, 255, 255, 0.55); }
@@ -305,7 +416,7 @@ img { display: block; }
   background: transparent; border: 0; color: var(--ink-dark);
 }
 .tile .stage {
-  position: relative; aspect-ratio: 4 / 3; border-radius: 20px;
+  position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-md);
   background: radial-gradient(120% 90% at 50% 50%, var(--dark-3) 0%, var(--dark-1) 76%);
 }
 .tile .stage img { transition: transform 620ms var(--ease-image); }
@@ -439,14 +550,16 @@ img { display: block; }
 
 .stats { background: var(--dark-1); color: var(--ink-dark); padding-block: calc(2.5 * var(--lead)); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: calc(1.5 * var(--lead)) var(--lead); }
+/* Plain figures, no boxes and no rules. Restraint, not instrumentation. */
 .stat-figure {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: clamp(34px, 3.4vw, 48px); line-height: 1.1; color: #ffffff;
-  margin: 0 0 0 -0.045em; font-feature-settings: 'tnum' 1;
+  font-family: var(--font-heading); font-weight: var(--w-label);
+  font-size: clamp(30px, 2.9vw, 40px); line-height: 1.06; color: #ffffff;
+  margin: 0; font-feature-settings: 'tnum' 1; letter-spacing: normal;
 }
 .stat-label {
-  font-size: 14.5px; line-height: 21px; color: rgba(244, 246, 249, 0.72);
-  margin: 14px 0 0; max-width: 26ch;
+  font-size: 14px; line-height: 21px; font-weight: var(--w-title);
+  color: var(--ink-muted);
+  margin: 12px 0 0; max-width: 26ch;
 }
 
 /* ── Lineup ──────────────────────────────────────────────────────────────
@@ -457,27 +570,28 @@ img { display: block; }
    whole floor instead of every card carrying its own outline. */
 
 .lineup {
-  --color-bg: #0b1e38;        /* the floor */
-  --color-surface: #13294a;   /* the cards standing on it */
-  --color-text: #eaf1fb;      /* ink on both */
-  --color-divider: #27476f;   /* the 2px rules */
-  --color-accent: #7a9ee0;    /* accents lift on a dark ground */
-  --color-accent-100: #1b3559;
-  --color-accent-300: #3a6099;
-  --color-accent-700: #a8c6f2;
+  --color-bg: #ffffff;        /* the floor */
+  --color-surface: #ffffff;   /* the cards standing on it */
+  --color-text: #181818;      /* ink on both */
+  --color-divider: #e4e4e4;   /* the hairline rules */
+  --color-accent: #3d6fd0;
+  --color-accent-100: #f7f7f7;
+  --color-accent-300: #d8d8d8;
+  --color-accent-700: #3d6fd0;
 
   background: var(--color-bg); color: var(--color-text);
   padding-block: calc(3 * var(--lead));
 }
+/* A chapter opens centred, large and light, on a 1.5 line. */
 .lineup h2 {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: clamp(30px, 3.4vw, 44px); line-height: 1.1; letter-spacing: -0.015em;
-  margin: 0 0 calc(0.5 * var(--lead)) -0.02em;
+  font-family: var(--font-heading); font-weight: var(--w-display);
+  font-size: clamp(28px, 3.6vw, 52px); line-height: 1.42; letter-spacing: normal;
+  margin: 0 auto calc(0.4 * var(--lead)); text-align: center; max-width: 24ch;
 }
 .lineup-intro {
-  font-size: 15.5px; line-height: var(--lead); max-width: 58ch;
-  margin: 0 0 calc(0.5 * var(--lead));
-  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+  font-size: 16px; line-height: 24px; font-weight: var(--w-title); max-width: 56ch;
+  margin: 0 auto calc(1.1 * var(--lead)); text-align: center;
+  color: var(--color-muted);
 }
 
 /* Vehicles photograph best on white, whatever the ground around them. */
@@ -492,7 +606,7 @@ img { display: block; }
   display: flex; flex-direction: column; gap: 0;
   padding: 0; margin: 0 0 calc(1.25 * var(--lead));
   background: var(--color-bg);
-  border-bottom: 2px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
 }
 .filter-row { display: flex; flex-wrap: wrap; gap: 0; }
 .filter-row.split {
@@ -551,7 +665,7 @@ img { display: block; }
 
 .flagship {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  background: var(--color-surface); border: 2px solid var(--color-divider);
+  background: var(--color-surface); border: 1px solid var(--color-divider);
   border-radius: 0; overflow: hidden; margin: 0 0 calc(1.25 * var(--lead));
 }
 .flagship .stage {
@@ -561,12 +675,12 @@ img { display: block; }
 .flagship .stage img { object-fit: contain; }
 .flagship-body {
   display: flex; flex-direction: column; justify-content: center; gap: 14px;
-  padding: clamp(24px, 3vw, 44px); border-left: 2px solid var(--color-divider);
+  padding: clamp(24px, 3vw, 44px); border-left: 1px solid var(--color-divider);
 }
-.flagship-kicker { font-size: 14px; color: var(--color-accent-700); }
+.flagship-kicker { font-size: 12px; line-height: 16px; color: var(--color-muted); }
 .flagship h3 {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: clamp(30px, 3.4vw, 44px); line-height: 1.08; letter-spacing: -0.02em; margin: 0;
+  font-family: var(--font-heading); font-weight: var(--w-display);
+  font-size: clamp(28px, 3.2vw, 42px); line-height: 1.12; letter-spacing: normal; margin: 0;
 }
 .flagship p {
   font-size: 15.5px; line-height: var(--lead); margin: 0; max-width: 46ch;
@@ -579,8 +693,8 @@ img { display: block; }
   color: color-mix(in srgb, var(--color-text) 55%, transparent);
 }
 .price-now {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: 30px; font-feature-settings: 'tnum' 1;
+  font-family: var(--font-heading); font-weight: var(--w-label);
+  font-size: 30px; font-feature-settings: 'tnum' 1; letter-spacing: normal;
 }
 .price-note { font-size: 14px; color: color-mix(in srgb, var(--color-text) 62%, transparent); }
 
@@ -591,8 +705,8 @@ img { display: block; }
 .rows {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 0; background: transparent;
-  border-top: 2px solid var(--color-divider);
-  border-left: 2px solid var(--color-divider);
+  border-top: 1px solid var(--color-divider);
+  border-left: 1px solid var(--color-divider);
 }
 .mcard {
   appearance: none; cursor: pointer; text-align: left; width: 100%;
@@ -618,23 +732,25 @@ img { display: block; }
 }
 
 /* Three figures a buyer actually compares, ruled apart. */
+/* The figures carry themselves. No cells, no rules, no backgrounds — just a
+   row with a 28px gap and the label dropped to 12px underneath. */
 .mcard-specs {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  margin-top: auto; border-top: 1px solid var(--color-divider);
+  display: flex; flex-wrap: wrap; gap: 4px 28px;
+  margin-top: auto; padding: 14px 22px 2px; border-top: 0;
 }
 .mcard-specs .cell {
-  display: flex; flex-direction: column; gap: 2px;
-  padding: 12px 14px 12px 22px; min-width: 0;
-  border-left: 1px solid var(--color-divider);
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 0; min-width: 0; border-left: 0;
 }
 .mcard-specs .cell:first-child { border-left: 0; }
 .mcard-specs .v {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: 16px; line-height: 20px; font-feature-settings: 'tnum' 1;
+  font-family: var(--font-heading); font-weight: var(--w-label);
+  font-size: 17px; line-height: 24px; letter-spacing: normal;
+  font-feature-settings: 'tnum' 1;
 }
 .mcard-specs .k {
-  font-size: 12px; line-height: 16px;
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  font-size: 12px; line-height: 16px; font-weight: var(--w-label);
+  color: var(--color-muted);
 }
 
 .mcard-foot {
@@ -678,12 +794,12 @@ img { display: block; }
 }
 .open-config {
   appearance: none; cursor: pointer; font-family: var(--font-body); font-size: 15px;
-  letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 30px; border-radius: 999px;
+  letter-spacing: normal; padding: 14px 26px; border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.45); background: transparent; color: var(--ink-dark); white-space: nowrap;
 }
 .configure-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: start; }
 .render {
-  position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 24px; overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-md); overflow: hidden;
   background: radial-gradient(120% 90% at 50% 45%, var(--dark-3) 0%, var(--dark-1) 74%);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -710,12 +826,12 @@ img { display: block; }
 .trim {
   appearance: none; cursor: pointer; text-align: left; font-family: var(--font-body);
   padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;
-  border-radius: 16px; color: var(--ink-dark);
+  border-radius: var(--radius-md); color: var(--ink-dark);
   border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.04);
   transition: background 180ms ease, border-color 180ms ease;
 }
 .trim[aria-pressed="true"] { border-color: #ffffff; background: rgba(255, 255, 255, 0.14); }
-.trim-name { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244, 246, 249, 0.75); }
+.trim-name { font-size: 13px; letter-spacing: normal; color: var(--ink-muted); }
 .trim-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .trim-price .now { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 20px; }
 .trim-price .was { font-size: 13px; text-decoration: line-through; color: rgba(244, 246, 249, 0.65); }
@@ -788,7 +904,7 @@ img { display: block; }
 
 /* ── Contact ───────────────────────────────────────────────────────────── */
 
-.contact { background: var(--color-text); color: var(--color-bg); }
+.contact { background: #000000; color: #ffffff; }
 .contact-inner { max-width: 1240px; margin: 0 auto; padding: calc(3 * var(--lead)) var(--edge); }
 .contact h2 {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
@@ -800,8 +916,8 @@ img { display: block; }
 .contact label { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; }
 .contact .input { color: var(--color-text); }
 .contact .form-actions { grid-column: 1 / -1; display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
-.contact .btn-ghost { color: var(--color-bg); border-color: var(--color-bg); white-space: nowrap; }
-.contact .call { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.contact .btn-ghost { white-space: nowrap; }
+.contact .call { font-size: 14px; letter-spacing: normal; color: var(--ink-muted); }
 .contact .call-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Which showroom this enquiry will reach, named under the island chooser so
@@ -823,11 +939,14 @@ img { display: block; }
 /* ── Footer ────────────────────────────────────────────────────────────── */
 
 footer.site {
-  max-width: 1240px; margin: 0 auto; padding: calc(2 * var(--lead)) var(--edge);
-  font-size: 13px; line-height: var(--lead);
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  max-width: none; margin: 0; padding: 50px var(--edge) 44px;
+  background: var(--foot-bg);
+  font-size: 14px; line-height: 28px; font-weight: var(--w-label);
+  color: var(--color-muted);
   display: flex; flex-wrap: wrap; gap: 8px 32px; justify-content: space-between;
 }
+footer.site a { color: var(--color-muted); }
+footer.site a:hover { color: var(--color-text); }
 
 /* ── Full-page configurator ────────────────────────────────────────────── */
 
@@ -845,7 +964,7 @@ footer.site {
 }
 .back-btn {
   appearance: none; cursor: pointer; font-family: var(--font-body); font-size: 13px;
-  letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 18px; border-radius: 999px;
+  letter-spacing: normal; padding: 10px 18px; border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.35); background: transparent; color: var(--ink-dark); white-space: nowrap;
 }
 .overlay-now { font-size: 15px; color: rgba(244, 246, 249, 0.88); }
@@ -863,7 +982,7 @@ footer.site {
 
 .brand-pill {
   appearance: none; cursor: pointer; font-family: var(--font-body); font-size: 13px;
-  letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 18px; border-radius: 999px;
+  letter-spacing: normal; padding: 9px 18px; border-radius: var(--radius-md);
   outline-offset: 2px; border: 1px solid rgba(255, 255, 255, 0.32);
   background: rgba(255, 255, 255, 0.05); color: rgba(244, 246, 249, 0.88);
 }
@@ -872,7 +991,7 @@ footer.site {
 .rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
 .rail-item {
   appearance: none; cursor: pointer; text-align: left; flex: 0 0 auto; min-width: 182px;
-  display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: 18px;
+  display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: var(--radius-md);
   font-family: var(--font-body); scroll-snap-align: start; outline-offset: 2px;
   border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.05);
   color: rgba(244, 246, 249, 0.92);
@@ -884,7 +1003,7 @@ footer.site {
 .rail-price { font-size: 14px; font-feature-settings: 'tnum' 1; }
 
 .overlay .render {
-  aspect-ratio: 4 / 3; max-height: 74vh; border-radius: 28px;
+  aspect-ratio: 4 / 3; max-height: 74vh; border-radius: var(--radius-md);
   background: radial-gradient(120% 90% at 50% 45%, var(--dark-3) 0%, var(--dark-1) 72%);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -908,7 +1027,7 @@ footer.site {
 
 .summary {
   display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-  padding: 24px clamp(20px, 3vw, 32px); border-radius: 24px;
+  padding: 24px clamp(20px, 3vw, 32px); border-radius: var(--radius-md);
   background: var(--dark-2); border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .summary-line { display: flex; flex-direction: column; gap: 6px; }
@@ -1222,3 +1341,68 @@ body.is-locked { overflow: hidden; }
 .overlay.is-entering .overlay-body { animation: dm-overlay-in 420ms 60ms var(--ease-enter) both; }
 @keyframes dm-overlay-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
+
+
+/* ── Controls on a dark ground ───────────────────────────────────────────
+   The ink-filled button disappears on black, so on the dark bands the solid
+   button inverts to white and the hairline button draws itself in white at
+   40% — the same two shapes, read the other way up. */
+
+.featured .btn-primary,
+.stats .btn-primary,
+.configure .btn-primary,
+.contact .btn-primary,
+.overlay .btn-primary {
+  background: #ffffff; color: #000000; border-color: #ffffff;
+}
+.featured .btn-primary:hover,
+.configure .btn-primary:hover,
+.contact .btn-primary:hover,
+.overlay .btn-primary:hover { background: rgba(255, 255, 255, 0.86); border-color: transparent; }
+
+.featured .btn-ghost,
+.configure .btn-ghost,
+.contact .btn-ghost,
+.overlay .btn-ghost {
+  color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: transparent;
+}
+.featured .btn-ghost:hover,
+.configure .btn-ghost:hover,
+.contact .btn-ghost:hover,
+.overlay .btn-ghost:hover { border-color: #ffffff; background: transparent; }
+
+
+/* The bar is fixed, so an in-page jump would otherwise put the heading
+   underneath it. Every anchor target keeps the bar's height clear. */
+#lineup, #avatr, #configure, #service, #locations, #contact { scroll-margin-top: var(--nav-h); }
+
+/* Chapter openers sit centred on the measure, the way the reference sets
+   them; copy that lives in a column stays flush left. */
+.service h2, .locations h2 {
+  text-align: center; margin-left: auto; margin-right: auto; max-width: 24ch;
+}
+
+
+/* ── Footer, and the bar on a phone ──────────────────────────────────────
+   A fixed bar that wraps to two rows eats a ninth of a phone screen, so
+   below 720px it keeps the wordmark and the one action and drops the link
+   list. The links move into the footer, which is why that is now two rows
+   rather than a single line of legal text. */
+
+footer.site { flex-direction: column; gap: 26px; }
+.foot-nav { display: flex; flex-wrap: wrap; gap: 10px 32px; }
+.foot-nav a {
+  font-size: 14px; line-height: 28px; font-weight: var(--w-label);
+  color: var(--color-muted);
+}
+.foot-nav a:hover { color: var(--color-text); }
+.foot-legal {
+  display: flex; flex-wrap: wrap; gap: 8px 32px; justify-content: space-between;
+  font-size: 12px; line-height: 20px;
+}
+
+@media (max-width: 720px) {
+  .nav { min-height: 56px; }
+  .nav a:not(.btn), .nav button.linklike { display: none; }
+  .foot-legal { justify-content: flex-start; }
+}

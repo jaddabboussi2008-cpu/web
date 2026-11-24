@@ -16,6 +16,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Archivo's lighter cuts. ds.css imports 400/600/800; the house layer sets
+     headings at 200-300, so those weights have to be fetched as well. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&display=swap">
 <link rel="stylesheet" href="assets/ds.css">
 <link rel="stylesheet" href="assets/site.css">
 
@@ -606,7 +609,7 @@
       <p class="form-hint" data-routed-to hidden></p>
       <p class="form-error" data-form-error hidden></p>
       <div class="form-actions">
-        <button type="submit" class="btn btn-ghost">Request a test drive</button>
+        <button type="submit" class="btn btn-primary">Request a test drive</button>
         <span class="call">Or call <a class="call-link" data-call-link href="tel:+5997170000">+599 717 0000</a></span>
       </div>
     </form>
@@ -621,8 +624,19 @@
 </section>
 
 <footer class="site">
-  <span>Dabboussi Motors — authorised Changan, Deepal and Avatr sales and service across Aruba, Bonaire and Curaçao.</span>
-  <span>Specifications and prices indicative; confirm at the showroom.</span>
+  <!-- The bar drops its links on a phone, so the sections stay reachable here. -->
+  <nav class="foot-nav" aria-label="Sections">
+    <a href="#lineup">Lineup</a>
+    <a href="#avatr">Avatr</a>
+    <a href="#configure">Configure</a>
+    <a href="#service">Service</a>
+    <a href="#locations">Showrooms</a>
+    <a href="#contact">Book a test drive</a>
+  </nav>
+  <div class="foot-legal">
+    <span>Dabboussi Motors — authorised Changan, Deepal and Avatr sales and service across Aruba, Bonaire and Curaçao.</span>
+    <span>Specifications and prices indicative; confirm at the showroom.</span>
+  </div>
 </footer>
 
 <div class="overlay" data-overlay hidden role="dialog" aria-modal="true" aria-label="Vehicle configurator"></div>
